@@ -6,8 +6,11 @@ import { Cat } from './entities/cat.entity';
 @Injectable()
 export class CatsService {
   private readonly listCats: Cat[] = [];
+  private id = 1;
   create(createCatDto: CreateCatDto) {
-    return this.listCats.push(createCatDto);
+    const newCat = { id: this.id++, ...createCatDto };
+    this.listCats.push(newCat);
+    return newCat;
   }
 
   findAll(): Cat[] {
@@ -15,14 +18,25 @@ export class CatsService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} cat`;
+    const cat = this.listCats.find((cat) => cat.id === id);
+    if (!cat) {
+      throw new Error(`Cat with id ${id} not found`);
+    }
+    return cat;
   }
 
   update(id: number, updateCatDto: UpdateCatDto) {
-    return `This action updates a #${id} cat`;
+    const cat = this.findOne(id);
+    Object.assign(cat, updateCatDto);
+    return cat;
   }
 
   remove(id: number) {
-    return `This action removes a #${id} cat`;
+    const index = this.listCats.findIndex((cat) => cat.id === id);
+    if (index === -1) {
+      throw new Error(`Cat with id ${id} not found`);
+    }
+    this.listCats.splice(index, 1);
+    return { message: `Cat with id ${id} removed successfully` };
   }
 }
